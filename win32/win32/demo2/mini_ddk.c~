@@ -1,0 +1,21 @@
+#include <ntddk.h>
+#define   INITCODE code_seg("INIT")
+#pragma INITCODE
+VOID DDK_Unload(IN PDRIVER_OBJECT pDriverObject);//前置说明 卸载例程
+NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriveObject,IN PUNICODE_STRING RegisterPath) //typedef long NTSTAUS
+{
+	CHAR *cstr = "Hello CHAR";
+	WCHAR *wstr = L"Hello WCHAR";
+	UNICODE_STRING usStr;
+	RtlInitUniceString(&usStr,L"");
+	KdPrint(("驱动成功被加载_____________OK"));   //DgbPrint("Hello DDK");
+	KdPrint(("%s",cstr));
+	KdPrint(("%S",wstr));
+	KdPrint(("%wZ",usStr));
+	pDriveObject->DriverUnload=DDK_Unload;
+	return (1);
+}
+VOID DDK_Unload(IN PDRIVER_OBJECT pDriverObject)
+{
+	KdPrint(("驱动成功被卸载____________OK")); //sprintf,printf
+}

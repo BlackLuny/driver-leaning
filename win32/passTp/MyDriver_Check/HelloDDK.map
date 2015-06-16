@@ -1,0 +1,70 @@
+ passTp
+
+ Timestamp is 4f85945b (Wed Apr 11 22:25:31 2012)
+
+ Preferred load address is 00010000
+
+ Start         Length     Name                   Class
+ 0001:00000000 000004e8H .text                   CODE
+ 0002:00000000 00000028H .idata$5                DATA
+ 0002:00000030 0000013eH .rdata                  DATA
+ 0002:00000170 0000006aH .rdata$debug            DATA
+ 0003:00000000 00000014H .bss                    DATA
+ 0004:00000000 00000014H .idata$2                CODE
+ 0004:00000014 00000014H .idata$3                CODE
+ 0004:00000028 00000028H .idata$4                CODE
+ 0004:00000050 000000b2H .idata$6                CODE
+
+  Address         Publics by Value              Rva+Base     Lib:Object
+
+ 0000:00000000       ___safe_se_handler_count   00000000     <absolute>
+ 0000:00000000       ___safe_se_handler_table   00000000     <absolute>
+ 0001:00000000       ?CallHook@@YGXHH@Z         00011000 f   main.obj
+ 0001:00000030       ?GetCallAddr@@YGHH@Z       00011030 f   main.obj
+ 0001:00000050       ?PanDuanProcessName@@YG_NPAD@Z 00011050 f   main.obj
+ 0001:000000a0       ?SearchFeature@@YGHHPADH@Z 000110a0 f   main.obj
+ 0001:00000140       ?GetSSDTFunctionAddr@@YGHH@Z 00011140 f   main.obj
+ 0001:00000170       ?SSDTHookEngine@@YGHHH@Z   00011170 f   main.obj
+ 0001:000001b0       ?InLineHookEngine@@YGXHH@Z 000111b0 f   main.obj
+ 0001:000001e0       ?UnInLineHookEngine@@YGXHPADH@Z 000111e0 f   main.obj
+ 0001:00000210       ?SSDTUnHookEngine@@YGXHH@Z 00011210 f   main.obj
+ 0001:00000240       ?MemoryWritable@@YGXXZ     00011240 f   main.obj
+ 0001:00000260       ?MemoryNotWritable@@YGXXZ  00011260 f   main.obj
+ 0001:00000280       ?GetFunCtionAddr@@YGHPAG@Z 00011280 f   main.obj
+ 0001:000002b0       ?GetKiAttachProcessAddr@@YGHXZ 000112b0 f   main.obj
+ 0001:00000300       ?MyNtOpenProcess@@YGXXZ    00011300 f   main.obj
+ 0001:00000350       ?HookNtOpenProcess@@YGXXZ  00011350 f   main.obj
+ 0001:00000430       ?UnHookNtOpenProcess@@YGXXZ 00011430 f   main.obj
+ 0001:00000470       ?Unload@@YGXPAU_DRIVER_OBJECT@@@Z 00011470 f   main.obj
+ 0001:00000490       _DriverEntry@8             00011490 f   main.obj
+ 0001:000004b8       _strcmp                    000114b8 f   ntoskrnl:ntoskrnl.exe
+ 0001:000004be       _strcpy                    000114be f   ntoskrnl:ntoskrnl.exe
+ 0001:000004c4       _IoGetCurrentProcess@0     000114c4 f   ntoskrnl:ntoskrnl.exe
+ 0001:000004ca       _RtlCompareMemory@12       000114ca f   ntoskrnl:ntoskrnl.exe
+ 0001:000004d0       _memmove                   000114d0 f   ntoskrnl:ntoskrnl.exe
+ 0001:000004d6       _MmGetSystemRoutineAddress@4 000114d6 f   ntoskrnl:ntoskrnl.exe
+ 0001:000004dc       _RtlInitUnicodeString@8    000114dc f   ntoskrnl:ntoskrnl.exe
+ 0001:000004e2       _DbgPrint                  000114e2 f   ntoskrnl:ntoskrnl.exe
+ 0002:00000000       __imp__strcmp              00012000     ntoskrnl:ntoskrnl.exe
+ 0002:00000004       __imp__strcpy              00012004     ntoskrnl:ntoskrnl.exe
+ 0002:00000008       __imp__IoGetCurrentProcess@0 00012008     ntoskrnl:ntoskrnl.exe
+ 0002:0000000c       __imp__RtlCompareMemory@12 0001200c     ntoskrnl:ntoskrnl.exe
+ 0002:00000010       __imp__memmove             00012010     ntoskrnl:ntoskrnl.exe
+ 0002:00000014       _KeServiceDescriptorTable  00012014     ntoskrnl:ntoskrnl.exe
+ 0002:00000014       __imp__KeServiceDescriptorTable 00012014     ntoskrnl:ntoskrnl.exe
+ 0002:00000018       __imp__MmGetSystemRoutineAddress@4 00012018     ntoskrnl:ntoskrnl.exe
+ 0002:0000001c       __imp__RtlInitUnicodeString@8 0001201c     ntoskrnl:ntoskrnl.exe
+ 0002:00000020       __imp__DbgPrint            00012020     ntoskrnl:ntoskrnl.exe
+ 0002:00000024       \177ntoskrnl_NULL_THUNK_DATA 00012024     ntoskrnl:ntoskrnl.exe
+ 0003:00000000       ?nObOpenObjectByPointerAddr@@3HA 00013000     main.obj
+ 0003:00000004       ?nNtOpenProcessAddr@@3HA   00013004     main.obj
+ 0003:00000008       ?nHookNtOpenPrpcessJmp@@3HA 00013008     main.obj
+ 0003:0000000c       ?nHookNtOpenPrpcessOldJmp@@3HA 0001300c     main.obj
+ 0003:00000010       ?nHookNtOpenProcessAddr@@3HA 00013010     main.obj
+ 0004:00000000       __IMPORT_DESCRIPTOR_ntoskrnl 00014000     ntoskrnl:ntoskrnl.exe
+ 0004:00000014       __NULL_IMPORT_DESCRIPTOR   00014014     ntoskrnl:ntoskrnl.exe
+
+ entry point at        0000:00000000
+
+ Static symbols
+

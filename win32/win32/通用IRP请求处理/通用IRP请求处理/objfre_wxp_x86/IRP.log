@@ -1,0 +1,50 @@
+﻿生成启动时间为 2012/8/7 8:43:01。
+     1>项目“E:\file\驱动编程\通用IRP请求处理\通用IRP请求处理\IRP.vcxproj”在节点 2 上(build 个目标)。
+     1>Build:
+         call D:\WINDDK\7600.16385.1\bin\setenv.bat D:\WINDDK\7600.16385.1 fre wxp
+         cd /d E:\file\驱动编程\通用IRP请求处理\通用IRP请求处理\
+         build
+         OACR monitor running already
+         path contains nonexistant d:\microsoft visual studio 10.0\common7\tools\bin, removing
+         path contains nonexistant c:\windows\syswow64, removing
+         path contains nonexistant d:\工具\nmap, removing
+         path contains nonexistant d:\工具\freepascal\bin\i386-win32, removing
+         BUILD: Compile and Link for x86
+         
+         BUILD: Loading d:\winddk\7600.16385.1\build.dat...
+         
+         BUILD: corrupt database (Directory error)
+         
+         BUILD: Computing Include file dependencies:
+         
+         BUILD: Start time: Tue Aug 07 08:43:01 2012
+         BUILD: Examining e:\file\驱动编程\通用irp请求处理\通用irp请求处理 directory for files to compile.
+         
+             e:\file\驱动编程\通用irp请求处理\通用irp请求处理 
+         
+         Invalidating OACR warning log for 'root:x86fre'
+         BUILD: Saving d:\winddk\7600.16385.1\build.dat...
+         
+         BUILD: Compiling and Linking e:\file\驱动编程\通用irp请求处理\通用irp请求处理 directory
+         
+         Configuring OACR for 'root:x86fre' - <OACR on>
+         _NT_TARGET_VERSION SET TO WINXP
+         1>errors in directory e:\file\驱动编程\通用irp请求处理\通用irp请求处理
+     1>1>NMAKE : fatal error U1073: don't know how to make 'e:\file\驱动编程\通用irp请求处理\通用irp请求处理\objfre_wxp_x86\i386\stdafx.obj'
+         1>nmake.exe /nologo BUILDMSG=Stop. -i /nologo /f d:\winddk\7600.16385.1\bin\makefile.def BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR= failed - rc = 2
+         
+         BUILD: Finish time: Tue Aug 07 08:43:02 2012
+         BUILD: Done
+         
+         
+         
+             0 files compiled - 5 Warnings - 2 Errors
+         
+     1>C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: 命令“call D:\WINDDK\7600.16385.1\bin\setenv.bat D:\WINDDK\7600.16385.1 fre wxp
+C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: cd /d E:\file\驱动编程\通用IRP请求处理\通用IRP请求处理\
+C:\Program Files\MSBuild\Microsoft.Cpp\v4.0\Microsoft.MakeFile.Targets(38,5): error MSB3073: build”已退出，代码为 1。
+     1>已完成生成项目“E:\file\驱动编程\通用IRP请求处理\通用IRP请求处理\IRP.vcxproj”(build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:01.34

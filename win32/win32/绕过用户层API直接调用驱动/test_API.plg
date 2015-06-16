@@ -1,0 +1,40 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: test_API - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x804 /fo"Release/test_API.res" /d "NDEBUG" /d "_AFXDLL" "E:\file\驱动编程\绕过用户层API直接调用驱动\test_API.rc"" 
+Creating temporary file "F:\360data\重要数据\TEMP\RSPBF9E.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/test_API.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"E:\file\驱动编程\绕过用户层API直接调用驱动\test_API.cpp"
+"E:\file\驱动编程\绕过用户层API直接调用驱动\test_APIDlg.cpp"
+]
+Creating command line "cl.exe @"F:\360data\重要数据\TEMP\RSPBF9E.tmp"" 
+Creating temporary file "F:\360data\重要数据\TEMP\RSPBF9F.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /Fp"Release/test_API.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"E:\file\驱动编程\绕过用户层API直接调用驱动\StdAfx.cpp"
+]
+Creating command line "cl.exe @"F:\360data\重要数据\TEMP\RSPBF9F.tmp"" 
+Creating command line "link.exe /nologo /subsystem:windows /incremental:no /pdb:"Release/test_API.pdb" /machine:I386 /out:"Release/test_API.exe"  ".\Release\StdAfx.obj" ".\Release\test_API.obj" ".\Release\test_APIDlg.obj" ".\Release\test_API.res" "
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+test_API.cpp
+test_APIDlg.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+test_API.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

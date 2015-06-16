@@ -1,0 +1,9 @@
+BUILD: Computing Include file dependencies:
+BUILD: Examining e:\file\oacr invalidate root:x86chk /autocleanqueue
+warnings in directory e:\file\
+1>Compiling and Linking e:\file\1>'nmake.exe /nologo BUILDMSG=Stop. -i /nologo /f d:\winddk\7600.16385.1\bin\makefile.def BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR='
+1>BUILDMSG: _NT_TARGET_VERSION SET TO WINXP
+1>NMAKE : fatal error U1073: don't know how to make 'e:\file\1>errors in directory e:\file\
+1>Stop.
+1>nmake.exe /nologo BUILDMSG=Stop. -i /nologo /f d:\winddk\7600.16385.1\bin\makefile.def BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR= failed - rc = 2
+

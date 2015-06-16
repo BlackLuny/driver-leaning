@@ -1,0 +1,2 @@
+1>warnings in directory e:\file\驱动编程\demo2
+1>e:\file\驱动编程\demo2\mini_ddk.c(8) : warning C4133: 'initializing' : incompatible types - from 'char [12]' to 'WC
