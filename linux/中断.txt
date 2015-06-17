@@ -1,0 +1,38 @@
+local_irq_disable() 禁止当前处理器上的本地中断 x86上是cli指令
+local_irq_save(unsigned long flags)把当前中断状态保存到flags中，然后禁用当前处理器上的中断发送。
+local_irq_enable()  允许当前处理器上的本地中断 x86上市sti指令
+local_irq_restore(unsigned long flags)激活中断 把中断恢复到它原来状态
+
+能够禁止和激活系统中所有处理器上的中断 cli() sti()函数。在2.5以前使用此方法
+在2.6以后所有的中断同步 必须结合本地中断控制和自旋锁，。这就意味着，为了确保对共享数据的呼哧访问，以前的代码仅仅需要
+通过全局禁止中断达到互斥，而现在需要多做些工作。以前驱动程序编写者可能假设在他们的终端处理程序中，任何访问共享数据都可以使用cli()
+提供互斥访问。cli()调用将确保没有其它的终端程序会运行。此外如果另外处理器进进入了cli保护区，那么它不可能运行，直到原来的处理器退出
+他们的cli()保护区，并调用了sti()后才能继续运行。
+取消全局cli()有不少优点，首先，强制驱动程序编写者实现真正的加锁，具有特定目的的细微粒锁比全局锁要快的多
+也使代码更具流线型，避免了代码的成粗布局。
+
+
+禁止整个系统（所有处理器）中的一条特定的中断线
+void disable_irq(unsigned int irq);
+void disable_irq_nosync(unsigned int irq);
+禁止中断处理器上指定的中断线，即禁止给定中断向系统所有处理器的传递
+void enable_irq(unsigned int irq);
+void synchronize_irq(unsigned int irq);
+
+in_interrupt() 判断当前进程是否处于中断上下文
+#define in_interrupt() 
+{ 
+    const int __cpu = smp_processor_id();
+    local_irq_count(__cpu) + local_bh_count(__cpu) != 0;
+    }
+
+中断处理程序运行的时候当前中断线在所有处理器上都会屏蔽，如果一个程序是SA_INTERRUPT快速中断，它执行的时候会禁止所有在当前处理器上的其他中断
+
+
+一个软中断不会抢占另一个软中断，事实上，唯一可抢占软中断的是中断处理程序。不过，其它软中断--甚至是相同类型的软中断--可以在其它处理器上同时执行
+
+spin_lock_bh()调用local_bh_disable()禁止当前CPU的软件中断
+spin_unlock_bh()则调用local_bh_enable()来势能本地CPU的软件中断。
+在软件中断被禁止的时候，本地CPU的所有软中断都不会被执行。
+
+

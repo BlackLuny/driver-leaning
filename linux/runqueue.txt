@@ -1,0 +1,15 @@
+调度程序中最基本的数据结构是可执行队列，由runqueue结构体表示
+可执行队列是给定处理器上的可执行进程的链表，每个处理器一个，每个可投入运行的进程都唯一的归属于一个可执行队列。
+在runqueue结构体中关键数据结构 prio_array_t *active, *expired, arrays[2] active 指向时间片没用完、当前可被调度的就绪进程，expired 指向时间片已用完的就绪进程
+struct prio_array 
+{
+	int nr_active;			   /* 本进程组中的进程数 */
+	struct list_head queue[MAX_PRIO];  /* 以优先级为索引的 HASH 表，见下 */
+	unsigned long bitmap[BITMAP_SIZE]; /* 加速以上 HASH 表访问的位图，见下 */
+};
+
+arrays 二元数组是两类就绪队列的容器，active 和 expired 分别指向其中一个。active 中的进程一旦用完了自己的时间片，就被转移到 expired 中，并设置好新的初始时间片；
+而当 active 为空时，则表示当前所有进程的时间片都消耗完了，此时，active 和 expired 进行一次对调，重新开始下一轮的时间片递减过程
+
+2.6 核心建立了一个位映射数组来对应每一个优先级链表，如果该优先级链表非空，则对应位为 1，否则为 0。
+核心还要求每个体系结构都构造一个 sched_find_first_bit() 函数来执行这一搜索操作，快速定位第一个非空的就绪进程链表

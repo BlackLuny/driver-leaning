@@ -1,0 +1,263 @@
+内核把中断处理分为两部分：上半部（top half）和下半部（bottom half），上半部（就是中断服务程序）内核立即执行，而下半部（就是一些内核函数）留着稍后处理。
+struct tasklet_struct {
+    struct tasklet_struct *next;        /*指向链表中的下一个结构*/
+     unsigned long state;		/* 小任务的状态 */
+     atomic_t count;			/* 引用计数器 */
+     void (*func) (unsigned long);	/* 要调用的函数 */
+     unsigned long data;		/* 传递给函数的参数 */
+}；
+结构中的func域就是下半部中要推迟执行的函数 ，data是它唯一的参数。
+state域的取值为TASKLET_STATE_SCHED或TASKLET_STATE_RUN。
+TASKLET_STATE_SCHED表示小任务已被调度，正准备投入运行，TASKLET_STATE_RUN表示小任务正在运行。
+TASKLET_STATE_RUN只有在多处理器系统上才使用，单处理器系统什么时候都清楚一个小任务是不是正在运行（它要么就是当前正在执行的代码，要么不是）。
+count域是小任务的引用计数器。如果它不为0，则小任务被禁止，不允许执行；只有当它为零，小任务才被激活，并且在被设置为挂起时，小任务才能够执行。
+
+
+2、声明和使用小任务
+
+大多数情况下，为了控制一个寻常的硬件设备，小任务机制是实现下半部的最佳选择。小任务可以动态创建，使用方便，执行起来也比较快。我们既可以静态地创建小任务，也可以动态地创建它。
+选择那种方式取决于到底是想要对小任务进行直接引用还是一个间接引用。如果准备静态地创建一个小任务（也就是对它直接引用），使用下面两个宏中的一个：
+
+DECLARE_TASKLET(name, func, data)
+DECLARE_TASKLET_DISABLED(name, func, data)
+
+这两个宏都能根据给定的名字静态地创建一个tasklet_struct结构。当该小任务被调度以后，给定的函数func会被执行，它的参数由data给出。
+这两个宏之间的区别在于引用计数器的初始值设置不同。第一个宏把创建的小任务的引用计数器设置为0，因此，该小任务处于激活状态。
+另一个把引用计数器设置为1，所以该小任务处于禁止状态。例如：
+DECLARE_TASKLET(my_tasklet, my_tasklet_handler, dev);
+这行代码其实等价于
+struct tasklet_struct my_tasklet = { NULL, 0, ATOMIC_INIT(0),tasklet_handler, dev};
+这样就创建了一个名为my_tasklet的小任务，其处理程序为tasklet_handler，并且已被激活。当处理程序被调用的时候，dev就会被传递给它。
+
+3、编写自己的小任务处理程序
+
+小任务处理程序必须符合如下的函数类型：
+void tasklet_handler(unsigned long data)
+由于小任务不能睡眠，因此不能在小任务中使用信号量或者其它产生阻塞的函数。但是小任务运行时可以响应中断。
+
+4、调度自己的小任务
+
+通过调用tasklet_schedule()函数并传递给它相应的tasklt_struct指针，该小任务就会被调度以便适当的时候执行：
+tasklet_schedule(&my_tasklet);  /*把 my_tasklet 标记为挂起 */
+在小任务被调度以后，只要有机会它就会尽可能早的运行。在它还没有得到运行机会之前，如果一个相同的小任务又被调度了，那么它仍然只会运行一次。
+可以调用tasklet_disable()函数来禁止某个指定的小任务。如果该小任务当前正在执行，这个函数会等到它执行完毕再返回。调用tasklet_enable()函数可以激活一个小任务，
+如果希望把以DECLARE_TASKLET_DISABLED（）创建的小任务激活，也得调用这个函数，如：
+
+tasklet_disable(&my_tasklet);     /* 小任务现在被禁止,这个小任务不能运行 */
+tasklet_enable(&my_tasklet);    /*  小任务现在被激活 */
+
+也可以调用tasklet_kill()函数从挂起的队列中去掉一个小任务。该函数的参数是一个指向某个小任务的tasklet_struct的长指针。
+在小任务重新调度它自身的时候，从挂起的队列中移去已调度的小任务会很有用。这个函数首先等待该小任务执行完毕，然后再将它移去。
+
+5、tasklet的简单用法
+
+下面是tasklet的一个简单应用, 以模块的形成加载。
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/fs.h>
+#include <linux/kdev_t.h>
+#include <linux/cdev.h>
+#include <linux/kernel.h>
+#include <linux/interrupt.h>  
+
+static struct tasklet_struct my_tasklet;  
+
+static void tasklet_handler (unsigned long data)
+{
+        printk(KERN_ALERT "tasklet_handler is running.\n");
+}  
+
+static int __init test_init(void)
+{
+        tasklet_init(&my_tasklet, tasklet_handler, 0);
+        tasklet_schedule(&my_tasklet);
+        return 0;
+}  
+
+static void __exit test_exit(void)
+{
+        tasklet_kill(&my_tasklet);
+        printk(KERN_ALERT "test_exit running.\n");
+}
+
+MODULE_LICENSE("GPL");  
+
+module_init(test_init);
+module_exit(test_exit);
+
+
+
+
+软中断被执行的优先级要高于内核线程。硬中断是可以抢占内核线程的，硬中断退出时会立即执行软中断。这时软中断执行程序是运行在中断上下文的。
+如果软中断执行程序在指定时间内没处理完，就会挂起来等下次下次被执行。
+下次被执行可以是另一个硬中断退出时在中断上下文中执行，也可以是在特殊的内核线程ksoftirq被调度到来执行，这时是运行在线程上下文的。
+
+总体来说，软中断执行程序被执行的机会会比普通线程要多。所以一些要优先并需要及时处理的工作可以交给软中断来处理。
+但linux 实现了软中断，但对内核模块开发的人员来说，内核并没有直接提供使用软中断的API。内核提供了tasklet 来给内核模块开发人员来用。
+
+tasklet是在软中断HI_SOFTIRQ和TASKLET_SOFTIRQ基础上实现的。
+
+初始化：
+在start_kernel（）里调用softirq_init（）初始化这两个软中断。
+
+open_softirq(TASKLET_SOFTIRQ, tasklet_action,NULL);
+open_softirq(HI_SOFTIRQ, tasklet_hi_action, NULL);
+数据结构：
+
+每个tasklet 由数据结构tasklet_struct 代表。
+
+struct tasklet_struct
+{
+    struct tasklet_struct *next;
+    unsigned long state;     //tasklet状态。
+    atomic_t count;         //锁计数器
+    void (*func)(unsigned long);  //tasklet处理函数。
+    unsigned long data;      //处理函数需要的参数。
+};
+
+全局数组tasklet_vec[NR_CPU] 和 tasklet_hi_vec[NR_CPU] 。数组元素是一个tasklet_head元素，是tasklet_struct 链表头。数组下标对应每个cpu ID.即数组保存了每个cpu上的tasklet_struct 链表。
+
+tasklet 的state状态字段有如下状态：
+TASKLET_STATE_SCHED	 表示tasklet已经插入到tasklet_vec 或 tasklet_hi_vec数组中的一个链表上了。
+TASKLET_STATE_RUN	 表示tasklet正在被执行。
+static inline int tasklet_trylock(struct tasklet_struct *t)
+{
+    return !test_and_set_bit(TASKLET_STATE_RUN, &(t)->state);
+}
+
+static inline void tasklet_unlock(struct tasklet_struct *t)
+{
+    smp_mb__before_clear_bit();
+    clear_bit(TASKLET_STATE_RUN, &(t)->state);
+}
+
+调用tasklet_init（）来定义一个tasklet.
+
+void tasklet_init(struct tasklet_struct *t,void (*func)(unsigned long), unsigned long data)
+{
+    t->next = NULL;
+    t->state = 0;
+    atomic_set(&t->count, 0);
+    t->func = func;
+    t->data = data;
+}
+
+
+禁止tasklet:
+static inline void tasklet_disable_nosync(struct tasklet_struct *t)
+{
+    /*禁止tasklet后立即返回*/
+    atomic_inc(&t->count);   //增加tasklet的锁计数器。
+    smp_mb__after_atomic_inc();
+}
+
+
+static inline void tasklet_unlock_wait(struct tasklet_struct *t)
+{
+    /*直到等到tasklet执行完毕返回*/
+    while (test_bit(TASKLET_STATE_RUN, &(t)->state)) { barrier(); }
+}
+
+static inline void tasklet_disable(struct tasklet_struct *t)
+{
+    /*禁止tasklet并且直到tasklet执行完毕后返回*/
+    tasklet_disable_nosync(t);
+    tasklet_unlock_wait(t);
+    smp_mb();
+}
+
+
+激活tasklet:
+static inline void tasklet_enable(struct tasklet_struct *t)
+{
+    smp_mb__before_atomic_dec();
+    /*递减tasklet的锁计数器*/
+    atomic_dec(&t->count);
+}
+
+
+调度tasklet
+根据tasklet的优先级调用tasklet_schedule() 或tasklet_hi_schedule().
+
+static inline voidtasklet_schedule(struct tasklet_struct *t)
+{
+    /*如果tasklet没被调度过，即没被插入tasklet_vec相应的链表 ,调度*/
+    if (!test_and_set_bit(TASKLET_STATE_SCHED, &t->state))
+    {
+        __tasklet_schedule(t);
+    }
+}
+
+
+void fastcall__tasklet_schedule(struct tasklet_struct *t)
+{
+    unsigned long flags;
+    /*保存中断状态寄存器并关闭本地CPU的中断*/
+    local_irq_save(flags);
+
+    /*把tasklet插入本地CPU的tasklet_vec中对应的链表里*/
+    t->next = __get_cpu_var(tasklet_vec).list;
+    __get_cpu_var(tasklet_vec).list = t;
+   
+   /*把本地CPU的软中断TASKLET_SOFTIRQ位标记为挂起*/
+    raise_softirq_irqoff(TASKLET_SOFTIRQ);
+
+    /*恢复中断状态寄存器并开本地CPU中断*/
+
+    local_irq_restore(flags);
+}
+
+
+软中断TASKLET_SOFTIRQ的处理函数如下：
+static void tasklet_action(struct softirq_action *a)
+{
+    struct tasklet_struct *list;
+    /*保存中断状态寄存器并关闭本地CPU的中断*/
+
+    local_irq_disable();
+
+    /*取得tasklet_vec数组中本地CPU的tasklet链表，并存入临时变量中*/
+    list = __get_cpu_var(tasklet_vec).list;
+
+    /*清空tasklet_vec数组中本地CPU的tasklet链表*/
+    __get_cpu_var(tasklet_vec).list = NULL;
+
+    /*恢复中断状态寄存器并开本地CPU中断*/
+    local_irq_enable();
+
+    /*循环执行tasklet链表上每个tasklet的处理函数*/
+    while (list)
+    {
+        /*从链表上摘下一个tasklet*/
+        struct tasklet_struct *t = list;
+        list = list->next;
+    
+       /*如果tasklet没在被执行，执行,设置tasklet 的state字段为RUNNING状态*/
+        if (tasklet_trylock(t))
+        {
+            /*如果tasklet的锁计数器为0,执行*/
+            if (!atomic_read(&t->count))
+            {
+                /*清除tasklet的SCHED状态*/
+                if (!test_and_clear_bit(TASKLET_STATE_SCHED, &t->state))
+                    BUG();
+                /*执行tasklet的处理函数*/
+                t->func(t->data);
+                /*清除tasklet 的state字段的RUNNING状态,继续处理链表上的下一个tasklet*/
+                tasklet_unlock(t);
+                continue;
+            }
+
+            /*如果tasklet 的锁计数器不为0，表示tasklet被禁用，清除state字段的RUNNING状态*/
+            tasklet_unlock(t);
+        }
+
+        /*关闭本地CPU中断，并把以上没被处理的tasklet重新挂到tasklet_vec数组中对应本地CPU上的链表上*/
+        local_irq_disable();
+        t->next = __get_cpu_var(tasklet_vec).list;
+        __get_cpu_var(tasklet_vec).list = t;
+       /*把本地CPU上的TASKLET_SOFTIRQ标记为挂起,并使能中断*/
+       __raise_softirq_irqoff(TASKLET_SOFTIRQ);
+       local_irq_enable();
+    }
+}

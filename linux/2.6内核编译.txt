@@ -1,0 +1,65 @@
+在linux2.6下如何利用交叉编译工具编译内核模块  
+
+2008-05-04 23:41:41|  分类： Kernel |举报|字号 订阅
+文档介绍：
+    此文档用来说明如何构建自己的内核模块以及如何在DBAU1200开发板上运行内核模块。
+    在确保DBAU1200开发板上可以正确启动linux内核以及正确挂载根文件系统以后，即可进行下面一步工作，开发内核模块。驱动可以通过内核模块的方 式动态的加载到内核中，同时也可以动态的卸载，这种加载驱动的方式可以大大加快驱动的开发周期，而不必要每次修改驱动都要重新编译一次内核。
+
+一个简单的内核模块：
+
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+
+MODULE_******("GPL");
+
+static int hello_init(void)
+{
+printk(KERN_ALERT "Hello, Linux world!\n");
+return 0;
+}
+
+static void hello_exit(void)
+{
+printk(KERN_ALERT "Goodbye, Linux world!\n");
+}
+
+module_init(hello_init);
+module_exit(hello_exit);
+
+将其保存为hello.c文件。
+
+然后，编写一个简单的Makefile ：
+ifneq ($(KERNELRELEASE),)
+mymodule-objs := hello.o
+obj-m := mymodule.o    //有一个模块需要从目标文件mymodule.o中构造，而从mymodule.o中构造的模块名为mymodule.ko
+else
+PWD := $(shell pwd)
+KVR ?= $(shell uname -r)
+KDIR := /lib/modules/$(KVR)/build
+all:
+       $(MAKE) -C $(KDIR) M=$(PWD)
+clean:
+       rm -rf .*.cmd *.o *.mod.c .tmp_versions
+endif
+
+注意，在Makefile中，命令行的前面一定要加上一个Tab符，将上述内容保存文件名为Makefile，然后在确保交叉编译工具正确以后，运行make命令编译此内核模块，make的参数如下所示：
+
+make ARCH=mips CROSS_COMPILE=mipsel-unknown-linux-gnu- KDIR=/home/juran/Build_linux/linux2.6/linux-2.6.21.5
+
+其中，ARCH表示的是目标的体系结构，对应于源代码下ARCH/目录下的内容，
+CROSS_COMPILE 表示的是交叉编译工具的前缀，
+KDIR 指向编译进目标板的linux内核的顶层路径。
+
+make完成以后生成一堆文件，其中，mymodule.ko即是我们所需要的内核模块。
+
+下面，将内核模块mymodule.ko放入根文件系统，采用网络根文件系统的方式或者采用Initramfs将根文件系统编译进内核的方式均可。mymodule.ko可以放在根文件系统下/usr目录之下。
+
+然后，用yamon启动linux内核，挂载根文件系统以后，
+
+#cd usr
+#insmod mymodule.ko
+
+就会看见控制台上输出对应的信息了。
+
+注意：根文件系统必须是利用busybox自己制作的，利用和编译内核一样的交叉编译工具来编译busybox，在配置busybox的时候，选上 insmod等命令的相关支持。起初，我用网上下载的根文件系统来insmod，结果显示kernel version mismatch ，这个根文件系统是为2.4的内核制作的，在2.6的内核里面也可以正确的挂载和使用一些命令，但是，在使用insmod这个命令的时候却出现了问题，所 以还是建议采用busybox生成自己的根文件系统。
